@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="shortcut icon" href="https://64.media.tumblr.com/avatar_f4bb10e6f15a_128.pnj">
+  <link href="https://fonts.googleapis.com/css2?family=Gloria+Hallelujah&family=Nanum+Myeongjo:wght@400;500;800&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css" integrity="sha512-MV7K8+y+gLIBoVD59lQIYicR65iaqukzvf/nwasF0nqhPay5w/9lJmVM2hMDcnK1OnMGCdVK+iQrJ7lzPJQd1w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rabbit Island</title>
+  <style>
+    #loadScreen {
+      position:absolute;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      align-items:center;
+      z-index:6;
+      height:100%;
+      width:100vw;
+      opacity: 1;
+      background-color: rgb(255, 255, 255);
+      transition: opacity 1.5s;
+      font-size:4vmin;
+      font-family:'Nanum Myeongjo', serif;
+    }
+    @keyframes loadAnimation {
+      0% {opacity: 1;}
+      50% {opacity: 0;}
+      100% {opacity: 1;}
+    }
+    #loadImg {
+      height: 50%;
+      margin:-5%;
+      opacity: 1;
+      animation-name: loadAnimation;
+      animation-duration: 2s;
+      animation-iteration-count: infinite;
+    }
+    .card, .button {
+      background-color:rgb(239, 236, 232)
+    }
+    #instructions {
+      position:absolute;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      align-items:center;
+      height:100%;
+      width:100%;
+      z-index:5;
+      backdrop-filter:blur(10px);
+      -webkit-backdrop-filter:blur(10px);
+      background-color: rgba(0,0,0, 0.5);
+      color:rgb(255,255,255);
+      font-size:4vmin;
+      font-family:'Nanum Myeongjo', serif;
+      font-weight:400;
+      line-height:1.8;
+      transition:opacity 1.5s;
+      text-align:center;
+      justify-content:center;
+    }
+    .card {
+      position:absolute;
+      z-index:4;
+      margin:2vmin;
+      padding: 2vmin;
+      border: 1px black solid;
+      box-shadow: 2vmin 2vmin 2vmin rgba(0, 0, 0, .5);
+      max-width: 45%;
+    }
+    .textWrapper {
+      backdrop-filter:blur(10px);
+      -webkit-backdrop-filter:blur(10px);
+      height: 100%;
+      width: 100%;
+    }
+    #legend {
+      height: 90%;
+      left:-55%;
+      font-family: 'Gloria Hallelujah', cursive;
+      display:grid;
+      grid-auto-flow:row;
+      grid-template-columns:auto;
+      margin-left:0px;
+      transition: left 1s;
+    }
+    #info {
+      margin-right:0px;
+      width:45%;
+      right:-55%;
+      transition: right 1s;
+      font-family: 'Nanum Myeongjo', serif;
+    }
+    #info h1 {
+      font-size: 4vmin;
+    }
+    #info h2 {
+      font-size: 3vmin;
+    }
+    #info p {
+      font-size: 2vmin;
+      font-weight:500;
+    }
+    .button {
+      position:absolute;
+      font-size:4vmin;
+      opacity: .5;
+      z-index:3;
+      height:fit-content;
+      width:auto;
+      margin: 2vmin;
+      padding: 2vmin;
+      border: 1px black solid;
+      box-shadow: 2vmin 2vmin 2vmin rgba(0, 0, 0, .5);
+      transition: opacity 1s;
+    }
+    #infoButton {
+      right:2vmin;
+    }
+    .legendItem {
+      display:flex;
+      flex-direction:row;
+      align-items:center;
+      margin-top: -5vmin;
+      margin-bottom: -5vmin;
+      font-size:2.5vmin;
+      line-height:90%;
+    }
+    .songSymbol {
+      height: 10vmin;
+      width: auto;
+      margin-right: 2vmin;
+    }
+    .close {
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      width:6vmin;
+      height:6vmin;
+      font-size:3vmin;
+      opacity: .5;
+      transition: opacity 1s;
+    }
+    #closeLegend {
+      position:absolute;
+      right:0px;
+    }
+    .close:hover, .button:hover, #audioCtrl:hover {
+      cursor:pointer;
+      opacity: 1;
+    }
+    #audioCtrl {
+      position:absolute;
+      width:fit-content;
+      bottom:0px;
+      right:0px;
+      z-index:4;
+      height:fit-content;
+      padding: 4vmin;
+      color:white;
+      font-size: 8vmin;
+      text-shadow: 1vmin 1vmin 1vmin rgba(0, 0, 0, .5);
+    }
+    body {
+      position:absolute;
+      margin: 0px;
+      height: 100%;
+      width: 100vw;
+      background-color: rgb(69,89,140);
+      overflow:hidden;
+    }
+    #focus {
+      position:fixed;
+      z-index:2;
+      height: 100vh;
+      width: 100vw;
+      background-image:radial-gradient(circle, rgba(255,255,255,0) 0%, rgba(255,255,255,0) 10%, rgba(255,255,255,.4) 10%, rgba(255,255,255,.4) 100%);
+      overflow:auto;
+    }
+    #mapContainer {
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      margin: auto;
+      width: 140vmin;
+      height: 100%;
+      overflow:auto;
+    }
+    #focus {
+      cursor:move;
+    }
+    #map {
+      position: absolute;
+      width: 140vmin;
+      height: 140vmin;
+      z-index:0;
+      margin:auto;
+    }
+    .songContainer {
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      position: absolute;
+      height: 30vmin;
+      width: 30vmin;
+      z-index: 0;
+    }
+    .song {
+      height: 15vmin;
+      width: auto;
+      opacity: .75;
+      z-index: 0;
+      transition: height 1.5s, 
+    }
+    #mapGradient {
+      position: absolute;
+      width: 140vmin;
+      height: 140vmin;
+      background-image: radial-gradient(closest-side, rgba(69,89,140,0) 0%, rgba(69,89,140,0) 60%, rgba(69,89,140,1) 89%);
+      z-index:1;
+    }
+  </style>
+</head>
+<body>
+  <div id="loadScreen">
+    <p>Welcome to Rabbit Island</p>
+    <img id="loadImg" src="https://songmap.rabbitisland.org/images/symbolsEdited/niAazhawaAmMinis.png">
+    <p>Loading...</p>
+  </div>
+  <div id="instructions">
+    <p>Drag Or Use Finger to Move Map<br>
+    Scroll Or Use Two Fingers to Zoom<br>
+    Click or Touch Anywhere To Start</p>
+  </div>
+  <div id="legendButton" class="button">
+    <i class="fa-solid fa-list"></i>
+  </div>
+  <div id="legend" class="card">
+    <div id="closeLegend" class="close">
+      <i class="fa-solid fa-x"></i>
+    </div> 
+    <div class="legendItem">
+      <img class="songSymbol" src="https://songmap.rabbitisland.org/images/symbolsEdited/leeside.png">
+      <div class="songTitle">Leeside</div>
+    </div>
+    <div class="legendItem">
+      <img class="songSymbol" src="https://songmap.rabbitisland.org/images/symbolsEdited/ofTheTrees.png">
+      <div class="songTitle">Of The Trees</div>
+    </div>
+    <div class="legendItem">
+      <img class="songSymbol" src="https://songmap.rabbitisland.org/images/symbolsEdited/layItDownWideOpenWaterNewDay.png">
+      <div class="songTitle">Lay it Down / Wide Open Water /<br>New Day</div>
+    </div>
+    <div class="legendItem">
+      <img class="songSymbol" src="https://songmap.rabbitisland.org/images/symbolsEdited/sanctuary.png">
+      <div class="songTitle">Sanctuary / Lay Myself Bare</div>
+    </div>
+    <div class="legendItem">
+      <img class="songSymbol" src="https://songmap.rabbitisland.org/images/symbolsEdited/wholeAndFree.png">
+      <div class="songTitle">Whole and Free</div>
+    </div>
+    <div class="legendItem">
+      <img class="songSymbol" src="https://songmap.rabbitisland.org/images/symbolsEdited/migration.png">
+      <div class="songTitle">Migration</div>
+    </div>
+    <div class="legendItem">
+      <img class="songSymbol" src="https://songmap.rabbitisland.org/images/symbolsEdited/washAway.png">
+      <div class="songTitle">Wash Away</div>
+    </div>
+    <div class="legendItem">
+      <img class="songSymbol" src="https://songmap.rabbitisland.org/images/symbolsEdited/warmedByTheSun.png">
+      <div class="songTitle">Warmed By The Sun</div>
+    </div>
+    <div class="legendItem">
+      <img class="songSymbol" src="https://songmap.rabbitisland.org/images/symbolsEdited/littleIsle.png">
+      <div class="songTitle">A Little Isle</div>
+    </div>
+    <div class="legendItem">
+      <img class="songSymbol" src="https://songmap.rabbitisland.org/images/symbolsEdited/smallThings.png">
+      <div class="songTitle">Small Things</div>
+    </div>
+    <div class="legendItem">
+      <img class="songSymbol" src="https://songmap.rabbitisland.org/images/symbolsEdited/lullabyForTheBirds.png">
+      <div class="songTitle">Lullaby For The Birds</div>
+    </div>
+    <div class="legendItem">
+      <img class="songSymbol" src="https://songmap.rabbitisland.org/images/symbolsEdited/autumnDawn.png">
+      <div class="songTitle">Autumn Dawn</div>
+    </div>
+    <div class="legendItem">
+      <img class="songSymbol" src="https://songmap.rabbitisland.org/images/symbolsEdited/eagleRise.png">
+      <div class="songTitle">Eagle Rise</div>
+    </div>
+    <div class="legendItem">
+      <img class="songSymbol" src="https://songmap.rabbitisland.org/images/symbolsEdited/oldSpruce.png">
+      <div class="songTitle">Old Spruce</div>
+    </div>
+    <div class="legendItem">
+      <img class="songSymbol" src="https://songmap.rabbitisland.org/images/symbolsEdited/beAtEase.png">
+      <div class="songTitle">Be At Ease</div>
+    </div>
+    <div class="legendItem">
+      <img class="songSymbol" src="https://songmap.rabbitisland.org/images/symbolsEdited/fogRollingIn.png">
+      <div class="songTitle">Fog Rolling In</div>
+    </div>
+    <div class="legendItem">
+      <img class="songSymbol" src="https://songmap.rabbitisland.org/images/symbolsEdited/restInThis.png">
+      <div class="songTitle">Rest In This</div>
+    </div>
+    <div class="legendItem">
+      <img class="songSymbol" src="https://songmap.rabbitisland.org/images/symbolsEdited/sweetWaterSea.png">
+      <div class="songTitle">Sweetwater Sea</div>
+    </div>
+    <div class="legendItem">
+      <img class="songSymbol" src="https://songmap.rabbitisland.org/images/symbolsEdited/greatWaterHeart.png">
+      <div class="songTitle">Greatwater Heart</div>
+    </div>
+    <div class="legendItem">
+      <img class="songSymbol" src="https://songmap.rabbitisland.org/images/symbolsEdited/niAazhawaAmMinis.png">
+      <div class="songTitle">Ni-aazhawa'am-minis</div>
+    </div>
+  </div>
+  <div id="infoButton" class="button">
+    <i class="fa-solid fa-info"></i>
+  </div>
+  <div id="info" class="card">
+    <div class="textWrapper">
+      <div id="closeInfo" class="close">
+        <i class="fa-solid fa-x"></i>
+      </div>
+      <h1>Ni-aazhawa’am-minis,  <i>'Crossing Over the Bay Island’</i></h1>
+      <p>-Anishinaabemowin language</p>
+      <h2>Rabbit Island/Traverse Island, Keweenaw Peninsula, Michigan</h2>
+
+      <p>In late September, 2021, we crossed the waters of Gichigami/Lake Superior and stepped onto the island. We sat with the moss, the waves, the age old rocks, the snowshoe hares, the stars, and the mist. We lay in silence, jumped in the cold water, and we sang with the moon. We made music with the island.</p>  
+
+      <p>Ni-aazhawa’am-minis—this island has been a place of stopover and rest for Anishinaabe people for a long time, and surely there have been many human songs sung here before. We are grateful for the chance to join in!</p>
+
+      <p>For two and a half weeks, the three of us spent time in different parts of the island, listening deeply for the songs that wanted to come into being. We would gather back together and share these song seeds with each other, nurturing them, adding harmonies and instruments. Then, we would return the song to the spot on the island where it was first born - our offerings to this place that gave us immeasurable gifts.</p>
+      
+      <p>As we crafted and sang the songs, an idea formed: to create a song map that would connect the songs that came through us with the places that inspired them, in a way people could experience. The song symbols on this map are linked to recordings of the songs being sung in their home spots. These recordings are simple and raw, filled with our voices but also with the sounds of the wind and the waves - the island singing with us.</p>
+      
+      <p>Big thanks to <a href="https://www.gregchudzik.com" target="_blank">Greg Chudzik</a> for working with us and creating this online songmap, to Andrew Ranville and Rob Gorski at the <a href="https://www.rabbitisland.org/?gclid=Cj0KCQiAm5ycBhCXARIsAPldzoWnlP_2lDMnV6dfGCZKvc9nX-0_0Asc9650OzkQg_G4XhnAANFghYgaAkjoEALw_wcB" target="_blank">Rabbit Island Foundation</a> for welcoming us, and to all who call the island home now, in the past, and in the years to come.</p>
+      
+      <p>-Heartwood: Willy Clemetson, Sarina Partridge, Heidi Wilson <a href="https://www.heartwoodtrio.com/" target="_blank">heartwoodtrio.com</a></p>
+    </div>
+  </div>
+  <audio id="unmute" loop="true">
+    <source src="https://rabbitisland.s3.us-east-2.amazonaws.com/mp3s/unmute.mp3" type="audio/mpeg"> 
+  </audio>
+  <div id="focus"></div>
+  <div id="mapContainer">
+    <div id="mapGradient"></div>
+    <img id="map" src="https://songmap.rabbitisland.org/images/finalBlankMap.jpeg">  
+  </div>
+  <div id="audioCtrl">
+    <i class="fa-solid fa-volume-high"></i>
+  </div>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.17/Tone.js"></script>
+  <script type="text/javascript">
+
+  document.body.onload = () => {
+  let loadScreen = document.getElementById("loadScreen");
+  loadScreen.style.opacity = 0;
+    setTimeout(() => {
+      loadScreen.remove();
+    }, 1550);
+  };
+  let instructions = document.getElementById("instructions");
+  instructions.onpointerdown = () => {
+    instructions.style.opacity = 0;
+    setTimeout(() => {
+      instructions.remove();
+    }, 1550);
+    if (document.body.classList.contains("toneStart") === false) {
+      document.body.classList.add("toneStart");
+      document.getElementById("unmute").play();
+      Tone.start();
+      positionerEvent();
+    };
+  };
+
+  let legend = document.getElementById("legend");
+  let info = document.getElementById("info");
+  let audioCtrl = document.getElementById("audioCtrl");
+  let audioCtrlIcon = audioCtrl.children[0];
+  document.getElementById("closeLegend").addEventListener("pointerdown", (e) => {
+    legend.style.left = "-55%";
+  });
+  document.getElementById("legendButton").addEventListener("pointerdown", (e) => {
+    legend.style.left = "0%";
+  });
+  document.getElementById("closeInfo").addEventListener("pointerdown", (e) => {
+    info.style.right = "-55%";
+  });
+  document.getElementById("infoButton").addEventListener("pointerdown", (e) => {
+    info.style.right = "0%";
+  });
+  audioCtrl.addEventListener("pointerdown", (e) => {
+    if (audioCtrlIcon.classList.contains("fa-volume-high")) {
+      audioCtrlIcon.classList.remove("fa-volume-high");
+      audioCtrlIcon.classList.add("fa-volume-xmark");
+      player.stop();
+      soundPlayer.stop();
+    } else if (audioCtrlIcon.classList.contains("fa-volume-xmark")) {
+      audioCtrlIcon.classList.remove("fa-volume-xmark");
+      audioCtrlIcon.classList.add("fa-volume-high");
+      player.start();
+      soundPlayer.start();
+    }
+  })
+    
+  let songs = [
+    {
+      name: "autumnDawn",
+      length: 107,
+      x: .512,
+      y: .452
+    }, 
+    {
+      name: "beAtEase",
+      length: 120,
+      x: .58,
+      y: .29
+    },
+    {
+      name: "eagleRise",
+      length: 107,
+      x: .733,
+      y: .379
+    },
+    {
+      name: "fogRollingIn",
+      length: 123,
+      x: .534,
+      y: .315
+    },
+    {
+      name: "greatWaterHeart",
+      length: 124,
+      x: .495,
+      y: .315
+    },
+    {
+      name: "inFormation",
+      length: 132,
+      x: .579,
+      y: .316
+    },
+    {
+      name: "layItDownWideOpenWaterNewDay",
+      length: 260,
+      x: .684,
+      y: .249
+    },
+    {
+      name: "leeside",
+      length: 156,
+      x: .610,
+      y: .728
+    },
+    {
+      name: "littleIsle",
+      length: 103,
+      x: .420,
+      y: .356
+    },
+    {
+      name: "lullabyForTheBirds",
+      length: 180,
+      x: .436,
+      y: .489
+    },
+    {
+      name: "migration",
+      length: 109,
+      x: .506,
+      y: .360
+    },
+    {
+      name: "niAazhawaAmMinis",
+      length: 88,
+      x: .618,
+      y: .255
+    },
+    {
+      name: "ofTheTrees",
+      length: 140,
+      x: .545,
+      y: .552
+    },
+    {
+      name: "oldSpruce",
+      length: 174,
+      x: .747,
+      y: .46
+    },
+    {
+      name: "restInThis",
+      length: 166,
+      x: .345,
+      y: .465
+    },
+    {
+      name: "sanctuary",
+      length: 302,
+      x: .582,
+      y: .499
+    },
+    {
+      name: "smallThings",
+      length: 136,
+      x: .276,
+      y: .531
+    },
+    {
+      name: "sweetWaterSea",
+      length: 352,
+      x: .367,
+      y: .430
+    },
+    {
+      name: "warmedByTheSun",
+      length: 95,
+      x: .397,
+      y: .397
+    },
+    {
+      name: "washAway",
+      length: 124,
+      x: .450,
+      y: .319
+    },
+    {
+      name: "wholeAndFree",
+      length: 140,
+      x: .447,
+      y: .419
+    },
+  ]
+
+  let sounds = [
+    {
+      name: "fieldRec1",
+      length: 153,
+      x: .551,
+      y: .518
+    },
+    {
+      name: "fieldRec2",
+      length: 124,
+      x: .115,
+      y: .688
+    },
+    {
+      name: "fieldRec3",
+      length: 177,
+      x: .529,
+      y: .460
+    },
+    {
+      name: "fieldRec4",
+      length: 71,
+      x: .75,
+      y: .507
+    },
+    {
+      name: "fieldRec5",
+      length: 205,
+      x: .505,
+      y: .385
+    },
+    {
+      name: "fieldRec6",
+      length: 53,
+      x: .294,
+      y: .62
+    },
+    {
+      name: "fieldRec7",
+      length: 199,
+      x: .294,
+      y: .62
+    },
+    {
+      name: "fieldRec8",
+      length: 104,
+      x: .747,
+      y: .413
+    },
+    {
+      name: "fieldRec9",
+      length: 94,
+      x: .656,
+      y: .34
+    },
+    {
+      name: "fieldRec10",
+      length: 74,
+      x: .673,
+      y: .722
+    },
+  ]
+
+    let posX, posY, maxMapLeft, maxMapTop;
+    let touchX, touchY;
+    let song = ""; let sound = "";
+    let time = 0;
+    let focusX = document.getElementById("focus").getBoundingClientRect().width * .5;
+    let focusY = document.getElementById("focus").getBoundingClientRect().height * .5;
+    let focusRadius = Math.max(window.innerWidth, window.innerHeight) * .05;
+    let initMapX = document.getElementById("map").clientWidth;
+    let maxMapX = document.getElementById("map").clientWidth * 9;
+    let initMapY = document.getElementById("map").clientHeight;
+    let maxMapY = document.getElementById("map").clientHeight * 9;
+    let initMapLeft = document.getElementById("map").getBoundingClientRect().left;
+    let initMapTop = document.getElementById("map").getBoundingClientRect().top;
+    let mapX = document.getElementById("map").clientWidth;
+    let mapY = document.getElementById("map").clientHeight;
+    let mapLeft = document.getElementById("map").getBoundingClientRect().left;
+    let mapTop = document.getElementById("map").getBoundingClientRect().top;
+    let mapGradX = document.getElementById("mapGradient").clientWidth;
+    let mapGradY = document.getElementById("mapGradient").clientHeight;
+    let mapGradLeft = document.getElementById("mapGradient").getBoundingClientRect().left;
+    let mapGradTop = document.getElementById("mapGradient").getBoundingClientRect().top;
+
+    setInterval(() => {
+      time += .1;
+    }, 100)
+
+    function zoom (delta, x, y) {
+      if (mapX >= initMapX && mapX <= maxMapX) {
+        posX = (x - mapLeft) / mapX;
+        posY = (y - mapTop) / mapY;
+        mapX -= delta;
+        mapY -= delta;
+        mapLeft += (delta * posX);
+        mapTop += (delta * posY);
+        mapGradX -= delta;
+        mapGradY -= delta;
+        mapGradLeft += (delta * posX);
+        mapGradTop += (delta * posY);
+        document.getElementById("map").style.width = mapX + "px";
+        document.getElementById("map").style.height = mapY + "px";
+        document.getElementById("map").style.left = mapLeft + "px";
+        document.getElementById("map").style.top = mapTop + "px";
+        document.getElementById("mapGradient").style.width = mapGradX + "px";
+        document.getElementById("mapGradient").style.height = mapGradY + "px";
+        document.getElementById("mapGradient").style.left = mapGradLeft + "px";
+        document.getElementById("mapGradient").style.top = mapGradTop + "px";
+        positionerEvent();
+      } else if (mapX < initMapX) {
+        mapX = initMapX;
+        mapY = initMapY;
+        mapGradX = initMapX;
+        mapGradY = initMapY;
+        mapLeft = initMapLeft;
+        mapTop = initMapTop;
+        mapGradLeft = initMapLeft;
+        mapGradTop = initMapTop;
+      } else if (mapX > maxMapX) {
+        mapX = maxMapX;
+        mapY = maxMapY;
+        mapGradX = maxMapX;
+        mapGradY = maxMapY;
+      }
+    }
+
+    document.getElementById("focus").addEventListener("wheel", (e) => {
+      e.preventDefault();
+      zoom(e.deltaY, e.clientX, e.clientY);
+    });
+
+    document.getElementById("focus").addEventListener("touchmove", (e) => {
+      if (e.touches.length === 2) {
+        let touchDistance = getDistance(e.touches.item(0).clientX, e.touches.item(0).clientY, e.touches.item(1).clientX, e.touches.item(1).clientY,);
+        prevTouchDistance = touchDistance;
+      }
+    })
+
+    dragElement(document.getElementById("focus"), document.getElementById("mapGradient"), document.getElementById("map"));
+    function dragElement(elmnt1, elmnt2, elmnt3) {
+      let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+      let initTouchDistance;
+      elmnt1.onmousedown = dragMouseDown;
+      elmnt1.ontouchstart = dragMouseDown;
+      function dragMouseDown(e) {
+        e.preventDefault();
+        e = e || window.event;
+        if (e.type === "mousedown") {
+          pos3 = e.clientX;
+          pos4 = e.clientY;
+        } else if (e.type === "touchstart" && e.touches.length === 1) {
+          pos3 = e.touches.item(0).clientX;
+          pos4 = e.touches.item(0).clientY;
+        } else if (e.type === "touchstart" && e.touches.length === 2) {
+          initTouchDistance = getDistance(e.touches.item(0).clientX, e.touches.item(0).clientY, e.touches.item(1).clientX, e.touches.item(1).clientY,);
+        };
+        document.onmouseup = closeDragElement;
+        document.ontouchend = closeDragElement;
+        document.onmousemove = elementDrag;
+        document.ontouchmove = elementDrag;
+      };
+      function elementDrag(e) {
+        e = e || window.event;
+        e.preventDefault();
+        if (e.type === "mousemove") {
+          pos1 = pos3 - e.clientX;
+          pos2 = pos4 - e.clientY;
+          pos3 = e.clientX;
+          pos4 = e.clientY;
+        } else if (e.type === "touchmove" && e.touches.length === 1) {
+          pos1 = pos3 - e.touches.item(0).clientX;
+          pos2 = pos4 - e.touches.item(0).clientY;
+          pos3 = e.touches.item(0).clientX;
+          pos4 = e.touches.item(0).clientY;
+        } else if (e.type === "touchmove" && e.touches.length === 2) {
+          let currTouchDistance = getDistance(e.touches.item(0).clientX, e.touches.item(0).clientY, e.touches.item(1).clientX, e.touches.item(1).clientY,);
+          let touchDelta = (initTouchDistance - currTouchDistance) * 2.5;
+          zoom(touchDelta, window.innerWidth / 2, window.innerHeight / 2);
+          initTouchDistance = currTouchDistance;
+        };
+        elmnt2.style.top = (elmnt2.offsetTop - pos2) + "px";
+        mapGradTop = elmnt2.offsetTop - pos2;
+        elmnt2.style.left = (elmnt2.offsetLeft - pos1) + "px";
+        mapGradLeft = elmnt2.offsetLeft - pos1;
+        elmnt3.style.top = (elmnt3.offsetTop - pos2) + "px";
+        mapTop = elmnt3.offsetTop - pos2;
+        elmnt3.style.left = (elmnt3.offsetLeft - pos1) + "px";
+        mapLeft = elmnt3.offsetLeft - pos1;
+        positionerEvent();
+      };
+      function closeDragElement() {
+        document.onmouseup = null;
+        document.ontouchend = null;
+        document.onmousemove = null;
+        document.ontouchmove = null;
+      };
+    };
+
+    function positioner(mapSize, elemSize, boundary, ratio) {
+      return boundary + (mapSize * ratio) - (elemSize * 0.5);
+    };
+
+    function closestSong(array) {
+      return array.reduce((prev, curr) => {
+        if (prev.distance < curr.distance) {
+          return prev
+        } else {
+          return curr
+        };
+      });
+    };
+
+    function animateSong(elem) {
+      getElem = document.getElementById(elem.name)
+      getElem.style.transition = "height 1.5s"
+      getElem.style.height = "30vmin";
+      let animate = setInterval(() => {
+        getElem.style.opacity = .2 + (meter.getValue() * 4);
+        if (getElem.classList.contains("started") === false) {
+          clearInterval(animate);
+          getElem.style.opacity = .75;
+        }
+      }, 20)
+      
+    }
+
+    function fade(targetDB) {
+      let currDB = soundPlayer.volume.value
+      if (currDB > targetDB) {
+        let volDown = setInterval(() => {
+          currDB -= .15;
+          soundPlayer.volume.value = currDB;
+          if (currDB <= targetDB) {
+            clearInterval(volDown)
+          }
+        }, 20)
+      } else if (currDB < targetDB) {
+        let volUp = setInterval(() => {
+          currDB += .15;
+          soundPlayer.volume.value = currDB;
+          if (currDB >= targetDB) {
+            clearInterval(volUp)
+          }
+        }, 20)
+      }
+    }
+
+    function positionerEvent() {
+      let prevSong = song;
+      for (i = 0; i < songs.length; i++) {
+        let thisSong = document.getElementById(songs[i].name + "Container");
+        let thisSize = thisSong.getBoundingClientRect().height;
+        thisSong.style.left = positioner(mapX, thisSize, mapLeft, songs[i].x) + "px";
+        thisSong.style.top = positioner(mapY, thisSize, mapTop, songs[i].y) + "px";
+        songs[i].distance = getDistance(focusX, focusY, (thisSong.getBoundingClientRect().left + (thisSize * .5)), (thisSong.getBoundingClientRect().top + (thisSize * .5)));
+      };
+      let currSong = closestSong(songs);
+      let getCurrSong = document.getElementById(currSong.name);
+      let getPrevSong = document.getElementById(prevSong.name);
+      if (currSong.name !== prevSong.name && currSong.distance <= focusRadius && audioCtrlIcon.classList.contains("fa-volume-high")) {
+        player.stop();
+        player.buffer.dispose();
+        getPrevSong.classList.remove("started");
+        getCurrSong.classList.add("started");
+        getPrevSong.style.height = "15vmin";
+        setTimeout(() => {getPrevSong.style.opacity = .75}, 1550);
+        player.load("https://rabbitisland.s3.us-east-2.amazonaws.com/mp3s/"+currSong.name+".mp3");
+        animateSong(currSong);
+      } else if (currSong.distance > focusRadius && document.getElementById(currSong.name).classList.contains("started")) {
+        document.getElementById(currSong.name).classList.remove("started");
+        fade(0);
+        player.stop();
+        document.getElementById(currSong.name).style.height = "15vmin";
+      } else if (document.getElementById(currSong.name).classList.contains("started") === false && song.distance <= focusRadius && audioCtrlIcon.classList.contains("fa-volume-high")) {
+        document.getElementById(currSong.name).classList.add("started");
+        player.load("https://rabbitisland.s3.us-east-2.amazonaws.com/mp3s/"+currSong.name+".mp3")
+        animateSong(currSong);
+      };
+      song = currSong;
+      let prevSound = sound;
+      for (i = 0; i < sounds.length; i++) {
+        sounds[i].distance = getDistance(focusX, focusY, positioner(mapX, 0, mapLeft, sounds[i].x), positioner(mapY, 0, mapTop, sounds[i].y))
+      };
+      let currSound = closestSong(sounds);
+      if (currSound.name !== prevSound.name && audioCtrlIcon.classList.contains("fa-volume-high")) {
+        soundPlayer.stop();
+        sound = currSound;
+        soundPlayer.load("https://rabbitisland.s3.us-east-2.amazonaws.com/mp3s/"+sound.name+".mp3");
+      }
+    };
+
+    function getDistance(x1, y1, x2, y2) {
+      let y = x2 - x1;
+      let x = y2 - y1;
+      return Math.sqrt(x * x + y * y);
+    };
+
+    for (let i = 0; i < songs.length; i++) {
+      let songImg = document.createElement("img");
+      let songImgContainer = document.createElement("div");
+      document.getElementById("mapContainer").appendChild(songImgContainer);
+      songImgContainer.id = songs[i].name + "Container";
+      songImgContainer.classList.add("songContainer")
+      document.getElementById(songs[i].name + "Container").appendChild(songImg);
+      songImg.id = songs[i].name;
+      songImg.classList.add("song"); 
+      songImg.src = "https://songmap.rabbitisland.org/images/symbolsEdited/"+songs[i].name+".png"
+      songImg.setAttribute("draggable", false);
+      let imgSize = songImg.getBoundingClientRect().height;
+      let imgContainerSize = songImgContainer.getBoundingClientRect().height;
+      songImgContainer.style.top = positioner(mapY, imgContainerSize, mapTop, songs[i].y) + "px";
+      songImgContainer.style.left = positioner(mapX, imgContainerSize, mapLeft, songs[i].x) + "px";
+      songs[i].distance = getDistance(focusX, focusY, positioner(mapX, imgSize, mapLeft, songs[i].x), positioner(mapY, imgSize, mapTop, songs[i].y));
+    };
+    for (let i = 0; i < sounds.length; i++) {
+      songs[i].distance = getDistance(focusX, focusY, positioner(mapX, 0, mapLeft, sounds[i].x), positioner(mapY, 0, mapTop, sounds[i].y));
+    }
+    song = closestSong(songs);
+    sound = closestSong(sounds);
+
+    let player = new Tone.Player("https://rabbitisland.s3.us-east-2.amazonaws.com/mp3s/"+song.name+".mp3", () => {
+      if (document.body.classList.contains("toneStart") && audioCtrlIcon.classList.contains("fa-volume-high")) {
+        Tone.start();
+        if (document.getElementById(song.name).classList.contains("started")) {
+          player.start(0, (time % song.length));
+          fade(-15);
+        }
+      }
+    }).toDestination();
+    player.loop = true;
+    let meter = new Tone.Meter();
+    meter.smoothing = .5;
+    meter.normalRange = true;
+    player.connect(meter);
+    player.fadeIn = 1.5;
+    player.fadeOut = 1.5;
+
+    let soundPlayer = new Tone.Player("https://rabbitisland.s3.us-east-2.amazonaws.com/mp3s/"+sound.name+".mp3", () => {
+      if (document.body.classList.contains("toneStart") && audioCtrlIcon.classList.contains("fa-volume-high")) {
+        Tone.start();
+        soundPlayer.start(0, (time % sound.length));
+        if (player.state === "started") {
+          soundPlayer.volume = -15;
+        } else {
+          soundPlayer.volume = 0;
+        }
+      }
+    }).toDestination();
+    soundPlayer.loop = true;
+    soundPlayer.fadeIn = 1.5;
+    soundPlayer.fadeOut = 1.5;
+
+    animateSong(song);
+
+    document.body.onresize = () => {
+      focusX = document.getElementById("focus").getBoundingClientRect().width * .5;
+      focusY = document.getElementById("focus").getBoundingClientRect().height * .5;
+      positionerEvent();
+    }
+    
+  </script>
+</body>
+</html>
